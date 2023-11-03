@@ -1,0 +1,4 @@
+---
+
+mariadb_package_name: mariadb-client
+mysql_package_name: mysql-common

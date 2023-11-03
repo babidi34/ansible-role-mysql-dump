@@ -1,0 +1,84 @@
+---
+- name: Load a variable file based on the OS type, or a default if not found.
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml"
+    - "{{ ansible_distribution }}.yml"
+    - "{{ ansible_os_family }}.yml"
+    - "default.yml"
+
+- name: Install mysql-client utility
+  apt:
+    name: "{{ mysql_package_name }}"
+    state: present
+  when: db_type == 'mysql'
+
+- name: Install mariadb-client utility
+  apt:
+    name: "{{ mariadb_package_name }}"
+    state: present
+  when: db_type == 'mariadb'
+
+- name: Create backup directory
+  file:
+    path: "{{ mysql_backup_path }}"
+    state: directory
+    owner: "{{ mysql_user }}"
+    group: "{{ mysql_group | default(mysql_user) }}"
+    mode: '0750'
+
+- name: Deploy the backup script
+  template:
+    src: dump_database.sh.j2
+    dest: "/usr/local/bin/dump_database-{{ mysql_database }}.sh"
+    mode: 0700
+
+- name: Deploy rotate dump sql script
+  template:
+    src: dump_database.sh.j2
+    dest: "/usr/local/bin/remove_old_dumps-{{ mysql_database }}.sh"
+    mode: 0700
+
+- name: Schedule cron job for MySQL dumps
+  cron:
+    name: "Dump MySQL database"
+    job: "/usr/local/bin/dump_database-{{ mysql_database }}.sh"
+    minute: "{{ cron_minute }}"
+    hour: "{{ cron_hour }}"
+    user: "root"
+    state: present
+    cron_file: "dump-{{ db_type }}-{{ mysql_database }}"
+
+- name: Schedule cron job for rotate dumps
+  cron:
+    name: "remove old dumps {{ mysql_database }}"
+    job: "/usr/local/bin/remove_old_dumps-{{ mysql_database }}.sh"
+    minute: "{{ cron_minute }}"
+    hour: "{{ cron_hour }}"
+    user: "root"
+    state: present
+    cron_file: "remove-dumps-{{ mysql_database }}"
+
+- name: Dump database
+  community.mysql.mysql_db:
+    name: "{{ mysql_database }}"
+    state: dump
+    target: "{{ mysql_backup_path }}"
+  when: dump_execute_now
+
+- name: Get last dump sql
+  find:
+    paths: "{{ mysql_backup_path }}"
+    patterns: "{{ mysql_database }}-*.sql"
+    recurse: no
+  register: latest_dump
+
+- name: Fetch the latest MySQL dump to the local machine
+  fetch:
+    src: "{{ latest_dump.files | sort(attribute='mtime', reverse=true) | first | attr('path') }}"
+    dest: "{{ local_backup_path }}"
+    flat: yes
+  delegate_to: localhost
+  when: latest_dump.files | length > 0 and local_backup
+
+
