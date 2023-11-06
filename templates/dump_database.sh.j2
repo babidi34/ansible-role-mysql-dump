@@ -5,5 +5,4 @@ mysql_password="{{ mysql_password }}"
 mysql_database="{{ mysql_database }}"
 mysql_backup_path="{{ mysql_backup_path }}"
 
-mysqldump -u $mysql_user -p"$mysql_password" $mysql_database > "$mysql_backup_path/$mysql_database−$(date +'%Y-%m-%dT%H:%M:%SZ').sql"
-
+mysqldump -u $mysql_user -p"$mysql_password" $mysql_database | gzip -8 > "$mysql_backup_path/$mysql_database−$(date +'%Y-%m-%dT%H:%M:%SZ').sql.gz"

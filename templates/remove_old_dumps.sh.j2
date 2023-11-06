@@ -2,7 +2,7 @@
 
 mysql_backup_path="{{ mysql_backup_path }}"
 
-for file in "$mysql_backup_path"/*.sql; do
+for file in "$mysql_backup_path"/*.gz; do
     if [[ $(stat -c %Y "$file") -lt $(date -d '-7 days' +%s) ]]; then
         rm "$file"
     fi

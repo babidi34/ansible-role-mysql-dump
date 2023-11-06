@@ -68,10 +68,14 @@
 
 - name: Get last dump sql
   find:
-    paths: "{{ mysql_backup_path }}"
-    patterns: "{{ mysql_database }}-*.sql"
+    path: "{{ mysql_backup_path }}"
+    patterns: "*.gz,*.sql"
     recurse: no
   register: latest_dump
+
+- name: print latest_dump
+  debug:
+   msg: "{{ (latest_dump.files | sort(attribute='mtime', reverse=true) | first).path }}"
 
 - name: Fetch the latest MySQL dump to the local machine
   fetch:
