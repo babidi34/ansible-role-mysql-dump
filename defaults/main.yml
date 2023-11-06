@@ -10,4 +10,4 @@ cron_minute: 0
 cron_hour: 2
 dump_execute_now: false
 local_backup: false
-local_backup_path: "{{ playbook_dir }}/../backups"
+local_backup_path: "{{ playbook_dir }}/../backups/"
