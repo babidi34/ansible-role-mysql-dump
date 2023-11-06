@@ -1,17 +1,33 @@
-Role Name
+# MySQL Backup Role
 =========
 
-A brief description of the role goes here.
+This Ansible role is used for creating MySQL/MariaDB database backups, managing the backup directory, and optionally transferring the latest backup to the Ansible controller machine.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- Ansible 2.9 or higher
+- `community.mysql` collection
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+
+The role uses the following variables which you can also override:
+
+- `db_type`: The type of the database, `mysql` or `mariadb`.
+- `mysql_package_name`: The package name for MySQL client utilities.
+- `mariadb_package_name`: The package name for MariaDB client utilities.
+- `mysql_backup_path`: The path where backups should be stored on the target machine.
+- `mysql_user`: The user for connecting to the database.
+- `mysql_group`: The group for file permissions in the backup directory.
+- `mysql_database`: The name of the database to backup.
+- `cron_minute`: The minute when the cron job should run.
+- `cron_hour`: The hour when the cron job should run.
+- `dump_execute_now`: Whether to execute a database dump immediately.
+- `local_backup`: Whether to fetch the latest dump to the local machine.
+- `local_backup_path`: The local path where the backup should be stored.
+
 
 Dependencies
 ------------
@@ -21,11 +37,22 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+- hosts: debian11-test
+  gather_facts: yes
+  become: yes
+  vars_files:
+    - ../secrets-infra-lm.yml
+  vars:
+    local_backup: true
+    dump_execute_now: true
+    cron_minute: '0'
+    cron_hour: '2'
+    mysql_user: zabbix
+    mysql_database: "zabbix-server"
+    mysql_password: "{{ zabbix_server_dbpassword }}"
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+  roles:
+    - mysql-dump
 
 License
 -------
@@ -35,4 +62,4 @@ BSD
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+This role was created in 2023 by Karim BAIDI.
