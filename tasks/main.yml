@@ -8,13 +8,13 @@
     - "default.yml"
 
 - name: Install mysql-client utility
-  apt:
+  package:
     name: "{{ mysql_package_name }}"
     state: present
   when: db_type == 'mysql'
 
 - name: Install mariadb-client utility
-  apt:
+  package:
     name: "{{ mariadb_package_name }}"
     state: present
   when: db_type == 'mariadb'
@@ -72,10 +72,6 @@
     patterns: "*.gz,*.sql"
     recurse: no
   register: latest_dump
-
-- name: print latest_dump
-  debug:
-   msg: "{{ (latest_dump.files | sort(attribute='mtime', reverse=true) | first).path }}"
 
 - name: Fetch the latest MySQL dump to the local machine
   fetch:
