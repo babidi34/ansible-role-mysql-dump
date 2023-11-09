@@ -78,4 +78,4 @@
     src: "{{ (latest_dump.files | sort(attribute='mtime', reverse=true) | first).path }}"
     dest: "{{ local_backup_path }}"
     flat: yes
-  when: dump_execute_now is defined and local_backup
+  when: dump_execute_now and local_backup
