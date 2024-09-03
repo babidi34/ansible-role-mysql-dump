@@ -1,4 +1,4 @@
 ---
 
-mariadb_package_name: mariadb-client
-mysql_package_name: mysql-common
+mariadb_package_name: [mariadb-client, python3-mysqldb]
+mysql_package_name: [mysql-common, python3-mysqldb]
