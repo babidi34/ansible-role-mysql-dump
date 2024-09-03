@@ -64,6 +64,9 @@
     name: "{{ mysql_database }}"
     state: dump
     target: "{{ mysql_backup_path }}/{{ mysql_database }}-{{ ansible_date_time.iso8601 }}.sql.gz"
+    login_host: "{{ mysql_host }}"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
   when: dump_execute_now
 
 - name: Get last dump sql

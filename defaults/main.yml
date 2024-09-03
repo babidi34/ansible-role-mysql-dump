@@ -1,6 +1,7 @@
 ---
 
 db_type: mariadb
+mysql_host: ''
 mysql_user: root
 mysql_group: root
 mysql_password: secret
