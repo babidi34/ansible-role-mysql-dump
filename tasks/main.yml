@@ -38,6 +38,7 @@
     src: remove_old_dumps.sh.j2
     dest: "/usr/local/bin/remove_old_dumps-{{ mysql_database }}.sh"
     mode: 0700
+  when: mysql_backup_rotate
 
 - name: Schedule cron job for MySQL dumps
   cron:

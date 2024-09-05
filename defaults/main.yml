@@ -7,6 +7,7 @@ mysql_group: root
 mysql_password: secret
 mysql_database: mydatabase
 mysql_backup_path: "/var/backups/mysql/{{ mysql_database }}"
+mysql_backup_rotate: true
 cron_minute: 0
 cron_hour: 2
 dump_execute_now: false
